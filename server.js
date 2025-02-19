@@ -19,7 +19,7 @@ app.options("*", (req, res) => {
 
 // ✅ Fix 2: Proper CORS Configuration
 app.use(cors({
-  origin: ["http://localhost:5173", "https://your-frontend-deployed-url.com"],  // Replace with actual deployed frontend
+  origin: ["http://localhost:5173", "https://accredian-frontend-bay.vercel.app"],  // Replace with actual deployed frontend
   methods: ["GET", "POST", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true
