@@ -12,15 +12,16 @@ const prisma = new PrismaClient();
 app.use(cors({
   origin: ['http://localhost:5173'], // Allow all origins temporarily (for debugging)
   methods: ["GET", "POST"],
-  allowedHeaders: ["Content-Type"],
+  allowedHeaders: ["Content-Type"], credentials: true,
 }));
 
-app.use(express.json());  
+app.use(express.json());
 
 // ✅ Test Route
 app.get("/", (req, res) => {
   res.json({ message: "CORS is enabled!" });
 });
+
 
 // Save Referral Data
 app.post("/api/referral", async (req, res) => {
