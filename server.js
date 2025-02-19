@@ -10,16 +10,23 @@ const prisma = new PrismaClient();
 
 // Middleware
 
+
+// ✅ Fix 1: Allow CORS for your frontend (localhost & deployed)
 app.use(cors({
-  origin: ["http://localhost:5173"], // Explicitly allow localhost
-  methods: ["GET", "POST", "OPTIONS"], // Allow necessary HTTP methods
-  allowedHeaders: ["Content-Type", "Authorization"], // Allow relevant headers
+  origin: ["http://localhost:5173"],  // Add your frontend URL (for local dev)
+  methods: ["GET", "POST", "OPTIONS"], // Ensure OPTIONS is allowed
+  allowedHeaders: ["Content-Type", "Authorization"], // Allow necessary headers
   credentials: true // Enable cookies/auth headers if needed
 }));
 
-// Handle Preflight Requests (CORS)
-app.options("*", cors()); 
-
+// ✅ Fix 2: Handle Preflight Requests (`OPTIONS`)
+app.options("*", (req, res) => {
+  res.setHeader("Access-Control-Allow-Origin", "http://localhost:5173");
+  res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  res.status(200).end();
+});
 app.use(express.json());
 
 // ✅ Test Route
