@@ -9,11 +9,16 @@ const app = express();
 const prisma = new PrismaClient();
 
 // Middleware
+
 app.use(cors({
-  origin: ['http://localhost:5173'], // Allow all origins temporarily (for debugging)
-  methods: ["GET", "POST"],
-  allowedHeaders: ["Content-Type"], credentials: true,
+  origin: ["http://localhost:5173"], // Explicitly allow localhost
+  methods: ["GET", "POST", "OPTIONS"], // Allow necessary HTTP methods
+  allowedHeaders: ["Content-Type", "Authorization"], // Allow relevant headers
+  credentials: true // Enable cookies/auth headers if needed
 }));
+
+// Handle Preflight Requests (CORS)
+app.options("*", cors()); 
 
 app.use(express.json());
 
