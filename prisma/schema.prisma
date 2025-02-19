@@ -11,15 +11,18 @@ generator client {
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
+
+  // Force Prisma to be compatible with MySQL 5.7
+  relationMode = "prisma"
 }
+
 model Referral {
-  id              Int      @id @default(autoincrement())
-  refereeName     String
-  refereeEmail    String   @unique
-  refereePhone    String
-  referrerName    String
-  referrerEmail   String
-  referrerPhone   String
-  referredProgram String
-  createdAt       DateTime @default(now())
+  id              Int    @id @default(autoincrement()) @map("id")
+  refereeName     String @map("refereeName")
+  refereeEmail    String @unique @map("refereeEmail")
+  refereePhone    String @map("refereePhone")
+  referrerName    String @map("referrerName")
+  referrerEmail   String @map("referrerEmail")
+  referrerPhone   String @map("referrerPhone")
+  referredProgram String @map("referredProgram")
 }

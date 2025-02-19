@@ -8,7 +8,6 @@ CREATE TABLE `Referral` (
     `referrerEmail` VARCHAR(191) NOT NULL,
     `referrerPhone` VARCHAR(191) NOT NULL,
     `referredProgram` VARCHAR(191) NOT NULL,
-    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
     UNIQUE INDEX `Referral_refereeEmail_key`(`refereeEmail`),
     PRIMARY KEY (`id`)
