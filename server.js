@@ -10,16 +10,17 @@ const prisma = new PrismaClient();
 
 // Middleware
 app.use(cors({
-  origin: ["http://localhost:5173"], // Allow Vite frontend
-  methods: ["GET", "POST"],
+  origin: "*", // Allow all origins temporarily (for debugging)
+  methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type"],
-})); 
-app.use(express.json());
-// const allowedOrigins = [
-//   "http://localhost:5173", // Vite Development Server
-//   "http://localhost:3000", // React Default Dev Server (if used)
-//   "https://your-frontend-domain.com" // Replace with your deployed frontend URL
-// ];
+}));
+
+app.use(express.json());  
+
+// ✅ Test Route
+app.get("/", (req, res) => {
+  res.json({ message: "CORS is enabled!" });
+});
 
 // Save Referral Data
 app.post("/api/referral", async (req, res) => {
@@ -73,7 +74,6 @@ const sendReferralEmail = async (recipientEmail, referrerName, referredProgram) 
   await transporter.sendMail(mailOptions);
 };
 
-app.get("/", (req, res) => res.json("Prisma working"))  // Test GET route
 
 // Start Server
 app.listen(5000, () => console.log("Server running on port 5000"));
