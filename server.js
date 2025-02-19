@@ -8,35 +8,27 @@ dotenv.config();
 const app = express();
 const prisma = new PrismaClient();
 
-// ✅ Fix: Allow Deployed & Local Frontend
+// ✅ Fix 1: Dynamic CORS Handling
 const allowedOrigins = [
-  "http://localhost:5173",  // Local development
-  "https://your-frontend-deployed-url.com"  // Replace with your deployed frontend URL
+  "http://localhost:5173",  // Local frontend
+  "https://your-frontend-deployed-url.com"  // Replace with actual deployed frontend
 ];
 
-app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("CORS not allowed"));
-    }
-  },
-  methods: ["GET", "POST", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: true
-}));
-
-// ✅ Fix: Explicitly Handle Preflight Requests (`OPTIONS`)
-app.options("*", (req, res) => {
-  res.setHeader("Access-Control-Allow-Origin", req.headers.origin || "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  res.setHeader("Access-Control-Allow-Credentials", "true");
-  res.status(204).end();
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+  }
+  if (req.method === "OPTIONS") {
+    return res.status(204).end();
+  }
+  next();
 });
 
-// Middleware
+// ✅ Middleware
 app.use(express.json());
 
 // ✅ Test Route
@@ -44,7 +36,7 @@ app.get("/", (req, res) => {
   res.json({ message: "CORS is enabled!" });
 });
 
-// ✅ Your API Endpoint
+// ✅ Fix 2: Ensure `/api/referral` is Recognized
 app.post("/api/referral", async (req, res) => {
   try {
     const { refereeName, refereeEmail, refereePhone, referrerName, referrerEmail, referrerPhone, referredProgram } = req.body;
@@ -71,7 +63,7 @@ app.post("/api/referral", async (req, res) => {
   }
 });
 
-// Email Function
+// ✅ Email Notification Function
 const sendReferralEmail = async (recipientEmail, referrerName, referredProgram) => {
   const transporter = nodemailer.createTransport({
     service: "gmail",
@@ -92,5 +84,5 @@ const sendReferralEmail = async (recipientEmail, referrerName, referredProgram) 
   await transporter.sendMail(mailOptions);
 };
 
-// Start Server
+// ✅ Start Server
 app.listen(5000, () => console.log("Server running on port 5000"));
