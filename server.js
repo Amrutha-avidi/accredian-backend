@@ -8,25 +8,22 @@ dotenv.config();
 const app = express();
 const prisma = new PrismaClient();
 
-// ✅ Fix 1: Dynamic CORS Handling
-const allowedOrigins = [
-  "http://localhost:5173",  // Local frontend
-  "https://your-frontend-deployed-url.com"  // Replace with actual deployed frontend
-];
-
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  if (allowedOrigins.includes(origin)) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
-    res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-    res.setHeader("Access-Control-Allow-Credentials", "true");
-  }
-  if (req.method === "OPTIONS") {
-    return res.status(204).end();
-  }
-  next();
+// ✅ Fix 1: Explicitly Handle `OPTIONS` Requests Before Any Routes
+app.options("*", (req, res) => {
+  res.setHeader("Access-Control-Allow-Origin", req.headers.origin || "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  return res.status(204).end(); // Send empty response for preflight
 });
+
+// ✅ Fix 2: Proper CORS Configuration
+app.use(cors({
+  origin: ["http://localhost:5173", "https://your-frontend-deployed-url.com"],  // Replace with actual deployed frontend
+  methods: ["GET", "POST", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true
+}));
 
 // ✅ Middleware
 app.use(express.json());
@@ -36,7 +33,7 @@ app.get("/", (req, res) => {
   res.json({ message: "CORS is enabled!" });
 });
 
-// ✅ Fix 2: Ensure `/api/referral` is Recognized
+// ✅ Main API Route
 app.post("/api/referral", async (req, res) => {
   try {
     const { refereeName, refereeEmail, refereePhone, referrerName, referrerEmail, referrerPhone, referredProgram } = req.body;
@@ -63,7 +60,7 @@ app.post("/api/referral", async (req, res) => {
   }
 });
 
-// ✅ Email Notification Function
+// ✅ Email Function
 const sendReferralEmail = async (recipientEmail, referrerName, referredProgram) => {
   const transporter = nodemailer.createTransport({
     service: "gmail",
