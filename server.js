@@ -9,17 +9,25 @@ const app = express();
 const prisma = new PrismaClient();
 
 // Middleware
-app.use(cors());
-app.use(express.json());  
-
+app.use(cors({
+  origin: ["http://localhost:5173"], // Allow Vite frontend
+  methods: ["GET", "POST"],
+  allowedHeaders: ["Content-Type"],
+})); 
+app.use(express.json());
+// const allowedOrigins = [
+//   "http://localhost:5173", // Vite Development Server
+//   "http://localhost:3000", // React Default Dev Server (if used)
+//   "https://your-frontend-domain.com" // Replace with your deployed frontend URL
+// ];
 
 // Save Referral Data
 app.post("/api/referral", async (req, res) => {
   try {
     const { refereeName, refereeEmail, refereePhone, referrerName, referrerEmail, referrerPhone, referredProgram } = req.body;
 
-     //  Validate Required Fields**
-     if (!refereeName || !refereeEmail || !refereePhone || !referrerName || !referrerEmail || !referrerPhone || !referredProgram) {
+    //  Validate Required Fields**
+    if (!refereeName || !refereeEmail || !refereePhone || !referrerName || !referrerEmail || !referrerPhone || !referredProgram) {
       return res.status(400).json({ error: "All fields are required." });
     }
 
@@ -65,7 +73,7 @@ const sendReferralEmail = async (recipientEmail, referrerName, referredProgram) 
   await transporter.sendMail(mailOptions);
 };
 
-app.get("/",(req,res)=>res.json("Prisma working"))  // Test GET route
+app.get("/", (req, res) => res.json("Prisma working"))  // Test GET route
 
 // Start Server
 app.listen(5000, () => console.log("Server running on port 5000"));
